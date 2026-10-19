@@ -1,0 +1,497 @@
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #203b37;
+  background: #f5f8f6;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  background: #fff;
+}
+
+.login-visual {
+  min-height: 100vh;
+  padding: 38px 8%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+  background:
+    radial-gradient(
+      circle at 90% 12%,
+      rgba(172, 211, 181, 0.24),
+      transparent 32%
+    ),
+    linear-gradient(145deg, #153e38, #226454 65%, #397c67);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-visual::after {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 50%;
+  right: -180px;
+  bottom: 70px;
+  box-shadow:
+    0 0 0 45px rgba(255, 255, 255, 0.025),
+    0 0 0 90px rgba(255, 255, 255, 0.025);
+  pointer-events: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  position: relative;
+  z-index: 1;
+}
+
+.brand-icon {
+  width: 51px;
+  height: 51px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 15px;
+}
+
+.brand h2 {
+  font-family: 'Manrope', sans-serif;
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -1px;
+}
+
+.brand h2 span {
+  color: #c6e5c7;
+}
+
+.brand p {
+  margin: 5px 0 0;
+  font-size: 9px;
+  letter-spacing: 2px;
+  opacity: 0.72;
+}
+
+.visual-content {
+  max-width: 490px;
+  margin: 50px auto;
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border-radius: 30px;
+  color: #e0f1dc;
+  background: rgba(255, 255, 255, 0.10);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.visual-content h1 {
+  margin: 26px 0 18px;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1.18;
+  letter-spacing: -2px;
+}
+
+.visual-content h1 span {
+  color: #c7e8c4;
+}
+
+.visual-description {
+  max-width: 420px;
+  font-size: 15px;
+  line-height: 1.9;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.care-note {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 37px;
+  padding: 19px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.care-note-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 13px;
+  background: rgba(209, 239, 205, 0.15);
+  color: #d5efce;
+}
+
+.care-note strong {
+  font-size: 14px;
+}
+
+.care-note p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.visual-footer {
+  position: relative;
+  z-index: 1;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.login-panel {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 45px 7%;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 490px;
+}
+
+.mobile-brand {
+  display: none;
+}
+
+.welcome {
+  margin-bottom: 28px;
+}
+
+.welcome-label {
+  color: #49846b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.welcome h2 {
+  margin: 12px 0 9px;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(25px, 3vw, 34px);
+  letter-spacing: -1px;
+  color: #203b37;
+}
+
+.welcome p {
+  margin: 0;
+  color: #7b8984;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.field-label,
+.form-field label {
+  display: block;
+  margin-bottom: 10px;
+  color: #344d46;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.role-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.role-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px 11px;
+  text-align: left;
+  color: #73817b;
+  background: #fff;
+  border: 1px solid #e3eae5;
+  border-radius: 13px;
+  transition: 0.2s ease;
+}
+
+.role-option:hover {
+  border-color: #8db6a0;
+}
+
+.role-option.selected {
+  border-color: #438667;
+  background: #eff7f0;
+  color: #286b4d;
+  box-shadow: 0 0 0 1px #438667;
+}
+
+.role-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #344d46;
+}
+
+.role-description {
+  font-size: 9px;
+  line-height: 1.5;
+  color: #87928d;
+}
+
+.form-field {
+  margin-bottom: 19px;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 15px;
+  color: #8c9a93;
+  background: #fbfcfb;
+  border: 1px solid #dfe7e1;
+  border-radius: 11px;
+  transition: 0.2s;
+}
+
+.input-wrapper:focus-within {
+  border-color: #438667;
+  box-shadow: 0 0 0 3px rgba(67, 134, 103, 0.10);
+}
+
+.input-wrapper input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #263e35;
+  font-size: 13px;
+}
+
+.input-wrapper input::placeholder {
+  color: #a7b1ab;
+}
+
+.password-toggle {
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: #839189;
+}
+
+.login-error {
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px solid #f0cccc;
+  border-radius: 10px;
+  background: #fff2f2;
+  color: #a33333;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.login-button {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
+  border: 0;
+  border-radius: 11px;
+  background: #286b50;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 7px 18px rgba(40, 107, 80, 0.15);
+  transition: 0.2s ease;
+}
+
+.login-button:hover {
+  background: #1e583f;
+  transform: translateY(-1px);
+}
+
+.login-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+  transform: none;
+}
+
+.login-security {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 25px;
+  color: #71867a;
+  font-size: 11px;
+}
+
+.login-security svg {
+  color: #49846b;
+}
+
+.login-help {
+  margin-top: 27px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.7;
+  color: #929d97;
+}
+
+@media (max-width: 900px) {
+  .login-page {
+    grid-template-columns: 0.8fr 1.2fr;
+  }
+
+  .login-visual {
+    padding: 30px 7%;
+  }
+
+  .login-panel {
+    padding: 35px 5%;
+  }
+
+  .role-options {
+    gap: 7px;
+  }
+
+  .role-option {
+    padding: 12px 8px;
+  }
+
+  .role-title {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 680px) {
+  .login-page {
+    display: block;
+    background: #f6f9f6;
+  }
+
+  .login-visual {
+    min-height: 220px;
+    padding: 24px;
+  }
+
+  .brand {
+    display: none;
+  }
+
+  .visual-content {
+    margin: 0;
+  }
+
+  .visual-content h1 {
+    margin: 18px 0 10px;
+    font-size: 31px;
+    letter-spacing: -1px;
+  }
+
+  .visual-description {
+    max-width: 450px;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+  }
+
+  .care-note,
+  .visual-footer {
+    display: none;
+  }
+
+  .login-panel {
+    min-height: auto;
+    padding: 0 17px 30px;
+    align-items: flex-start;
+  }
+
+  .login-card {
+    max-width: 520px;
+    margin: -12px auto 0;
+    padding: 26px 20px;
+    position: relative;
+    border: 1px solid #e8eee9;
+    border-radius: 19px;
+    background: #fff;
+    box-shadow: 0 12px 35px rgba(29, 69, 49, 0.06);
+  }
+
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 24px;
+    color: #286b50;
+    font-size: 16px;
+  }
+
+  .welcome {
+    margin-bottom: 23px;
+  }
+
+  .welcome h2 {
+    font-size: 25px;
+  }
+
+  .role-options {
+    gap: 8px;
+  }
+
+  .role-option {
+    padding: 12px 9px;
+  }
+
+  .role-description {
+    font-size: 9px;
+  }
+}
