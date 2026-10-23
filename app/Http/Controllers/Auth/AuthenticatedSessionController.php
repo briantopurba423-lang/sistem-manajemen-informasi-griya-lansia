@@ -12,29 +12,34 @@ class AuthenticatedSessionController extends Controller
     public function store(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required', 'string'],
             'remember' => ['sometimes', 'boolean'],
         ]);
 
         if (!Auth::attempt([
-            'email' => $credentials['email'],
+            'email'    => $credentials['email'],
             'password' => $credentials['password'],
         ], $request->boolean('remember'))) {
 
             throw ValidationException::withMessages([
-                'email' => [
-                    'Email atau password salah.'
-                ],
+                'email' => ['Email atau password salah.'],
             ]);
         }
 
         $request->session()->regenerate();
 
-        return response()->json([
-            'message' => 'Login berhasil.',
-            'user' => $request->user()->load('resident'),
-        ]);
+        // Jika request dari React (AJAX/fetch), kembalikan JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message'  => 'Login berhasil.',
+                'redirect' => route('dashboard'),
+                'user'     => $request->user(),
+            ]);
+        }
+
+        // Jika request form biasa, redirect ke dashboard
+        return redirect()->intended(route('dashboard'));
     }
 
     public function destroy(Request $request)
@@ -42,18 +47,19 @@ class AuthenticatedSessionController extends Controller
         Auth::logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
-        return response()->json([
-            'message' => 'Logout berhasil.'
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Logout berhasil.']);
+        }
+
+        return redirect()->route('login');
     }
 
     public function me(Request $request)
     {
         return response()->json([
-            'user' => $request->user()->load('resident'),
+            'user' => $request->user(),
         ]);
     }
 }
