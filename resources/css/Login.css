@@ -1,0 +1,485 @@
+
+/* ===== GRIYA LANSIA LOGIN ===== */
+:root {
+  --gl-primary: #2f80a8;
+  --gl-primary-dark: #236583;
+  --gl-text: #263238;
+  --gl-muted: #78858c;
+  --gl-bg: #f5f8fa;
+  --gl-border: #e3eaf0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--gl-bg);
+  color: var(--gl-text);
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* PANEL KIRI */
+.login-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 8%;
+  overflow: hidden;
+  color: white;
+  background:
+    radial-gradient(
+      circle at 80% 15%,
+      rgba(116, 180, 155, 0.3),
+      transparent 35%
+    ),
+    linear-gradient(145deg, #173d4d, #246d7d 60%, #2f80a8);
+}
+
+.login-visual::after {
+  content: "";
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  right: -160px;
+  bottom: -170px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 35px rgba(255, 255, 255, 0.035),
+    0 0 0 75px rgba(255, 255, 255, 0.025);
+  pointer-events: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  position: relative;
+  z-index: 1;
+}
+
+.brand-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.brand h2 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 750;
+  letter-spacing: -0.8px;
+}
+
+.brand h2 span {
+  color: #a9e3c5;
+}
+
+.brand p {
+  margin: 5px 0 0;
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0.8;
+}
+
+.visual-content {
+  position: relative;
+  z-index: 1;
+  max-width: 540px;
+  margin: 50px 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #b7ebce;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.visual-content h1 {
+  margin: 25px 0 20px;
+  font-size: clamp(38px, 4vw, 58px);
+  line-height: 1.16;
+  letter-spacing: -2px;
+}
+
+.visual-content h1 span {
+  color: #a9e3c5;
+}
+
+.visual-description {
+  max-width: 430px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.care-note {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 38px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.care-note-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 13px;
+  color: #b7ebce;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.care-note strong {
+  font-size: 14px;
+}
+
+.care-note p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+}
+
+.visual-footer {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+}
+
+/* PANEL KANAN */
+.login-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 42px 7%;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 460px;
+}
+
+.mobile-brand {
+  display: none;
+}
+
+.welcome {
+  margin-bottom: 30px;
+}
+
+.welcome-label {
+  color: var(--gl-primary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.welcome h2 {
+  margin: 12px 0 9px;
+  font-size: clamp(25px, 2.5vw, 33px);
+  line-height: 1.25;
+  letter-spacing: -1px;
+}
+
+.welcome p {
+  margin: 0;
+  color: var(--gl-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* PILIHAN PERAN */
+.role-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.role-option {
+  min-width: 0;
+  min-height: 125px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 5px;
+  border: 1px solid var(--gl-border);
+  border-radius: 15px;
+  color: #64747d;
+  background: white;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.role-option:hover {
+  border-color: #a5c9d9;
+  transform: translateY(-2px);
+}
+
+.role-option.selected {
+  border: 1.5px solid var(--gl-primary);
+  color: var(--gl-primary);
+  background: #edf7fb;
+  box-shadow: 0 4px 14px rgba(47, 128, 168, 0.09);
+}
+
+.role-title {
+  font-size: 12px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.role-description {
+  color: var(--gl-muted);
+  font-size: 10px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* INPUT */
+.form-field {
+  margin-bottom: 19px;
+}
+
+.form-field > label {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 51px;
+  padding: 0 14px;
+  border: 1px solid var(--gl-border);
+  border-radius: 12px;
+  color: #84939c;
+  background: white;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--gl-primary);
+  box-shadow: 0 0 0 3px rgba(47, 128, 168, 0.1);
+}
+
+.input-wrapper input {
+  width: 100%;
+  min-width: 0;
+  height: 49px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  color: var(--gl-text);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+}
+
+.input-wrapper input::placeholder {
+  color: #a7b1b8;
+}
+
+.password-toggle {
+  display: grid;
+  place-items: center;
+  padding: 5px;
+  border: 0;
+  color: #84939c;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ERROR DAN TOMBOL */
+.login-error {
+  margin: 0 0 15px;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b91c1c;
+  background: #fef2f2;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.login-button {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 12px;
+  color: white;
+  background: var(--gl-primary);
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: 0 7px 18px rgba(47, 128, 168, 0.2);
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+.login-button:hover:not(:disabled) {
+  background: var(--gl-primary-dark);
+  transform: translateY(-1px);
+}
+
+.login-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.login-security {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  color: #71818a;
+  font-size: 11px;
+}
+
+.login-security svg {
+  color: #429b79;
+}
+
+.login-help {
+  margin: 16px 0 0;
+  color: #89959c;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1000px) {
+  .login-page {
+    grid-template-columns: 0.85fr 1.15fr;
+  }
+
+  .login-visual {
+    padding: 35px 7%;
+  }
+
+  .login-panel {
+    padding: 35px 6%;
+  }
+
+  .visual-content h1 {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 760px) {
+  .login-page {
+    grid-template-columns: 1fr;
+    background: white;
+  }
+
+  .login-visual {
+    display: none;
+  }
+
+  .login-panel {
+    min-height: 100vh;
+    padding: 32px 22px;
+    background:
+      radial-gradient(
+        circle at 100% 0%,
+        #e6f5ed 0,
+        transparent 260px
+      ),
+      #ffffff;
+  }
+
+  .login-card {
+    max-width: 430px;
+  }
+
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 42px;
+    color: var(--gl-primary);
+  }
+
+  .mobile-brand strong {
+    color: var(--gl-text);
+    font-size: 20px;
+  }
+
+  .welcome h2 {
+    font-size: 29px;
+  }
+
+  .role-options {
+    gap: 8px;
+  }
+
+  .role-option {
+    min-height: 118px;
+  }
+}
+
+@media (max-width: 380px) {
+  .login-panel {
+    padding: 25px 15px;
+  }
+
+  .role-options {
+    gap: 6px;
+  }
+
+  .role-option {
+    padding: 10px 3px;
+  }
+
+  .role-title {
+    font-size: 11px;
+  }
+
+  .role-description {
+    font-size: 9px;
+  }
+}

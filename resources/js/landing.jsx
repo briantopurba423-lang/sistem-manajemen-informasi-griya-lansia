@@ -1,13 +1,14 @@
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import LandingPage from './components/LandingPage';
+import Login from './Login.jsx';
 
 const rootElement = document.getElementById('landing-root');
 
 if (rootElement) {
     createRoot(rootElement).render(
         <React.StrictMode>
-            <LandingPage />
+            <Login />
         </React.StrictMode>
     );
 }

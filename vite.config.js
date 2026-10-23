@@ -10,16 +10,11 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
-                'resources/js/app.js',
+                'resources/js/app.jsx',
                 'resources/js/landing.jsx',
                 'resources/js/dashboard.jsx',
             ],
             refresh: true,
         }),
     ],
-    server: {
-        watch: {
-            ignored: ['**/storage/framework/views/**'],
-        },
-    },
 });
