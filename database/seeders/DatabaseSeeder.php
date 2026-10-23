@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Users
         $perawat = User::firstOrCreate(['email' => 'perawat@griya.com'], [
             'name'     => 'Siti Aisyah',
             'password' => bcrypt('password'),
@@ -33,7 +32,6 @@ class DatabaseSeeder extends Seeder
             'role'     => 'keluarga',
         ]);
 
-        // Lansia
         $names = ['Sutrisno', 'Maryati', 'Rukmini', 'Widodo', 'Sulastri'];
         $residents = [];
         foreach ($names as $i => $name) {
@@ -47,13 +45,9 @@ class DatabaseSeeder extends Seeder
 
         $today = Carbon::today()->toDateString();
 
-        // Pemeriksaan hari ini
-        $examTypes = [
-            'Pemeriksaan Rutin', 'Cek Tekanan Darah', 'Cek Gula Darah',
-            'Pemeriksaan Rutin', 'Cek Kolesterol',
-        ];
-        $examTimes  = ['08:00', '09:00', '10:00', '11:00', '13:00'];
-        $examStatus = ['selesai', 'selesai', 'dalam_proses', 'belum_mulai', 'belum_mulai'];
+        $examTypes  = ['Pemeriksaan Rutin','Cek Tekanan Darah','Cek Gula Darah','Pemeriksaan Rutin','Cek Kolesterol'];
+        $examTimes  = ['08:00','09:00','10:00','11:00','13:00'];
+        $examStatus = ['selesai','selesai','dalam_proses','belum_mulai','belum_mulai'];
 
         foreach ($residents as $i => $r) {
             Examination::firstOrCreate(
@@ -62,13 +56,11 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // Kegiatan hari ini
         $acts = [
             ['name' => 'Senam Pagi',      'time' => '08:00', 'status' => 'selesai'],
             ['name' => 'Terapi Rekreasi', 'time' => '10:00', 'status' => 'selesai'],
             ['name' => 'Penyuluhan Gizi', 'time' => '14:00', 'status' => 'akan_datang'],
         ];
-
         foreach ($acts as $a) {
             DailyActivity::firstOrCreate(
                 ['name' => $a['name'], 'activity_date' => $today],
@@ -76,7 +68,6 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // Kondisi kesehatan
         $conditions = [
             ['diagnosis' => 'Nyeri lutut',          'treatment' => 'Pemberian obat'],
             ['diagnosis' => 'Pusing',               'treatment' => 'Observasi'],
@@ -84,15 +75,10 @@ class DatabaseSeeder extends Seeder
             ['diagnosis' => 'Batuk',                'treatment' => 'Pemeriksaan lanjutan'],
             ['diagnosis' => 'Tidak ada keluhan',    'treatment' => '-'],
         ];
-
         foreach ($residents as $i => $r) {
             HealthRecord::firstOrCreate(
                 ['resident_id' => $r->id, 'check_date' => $today],
-                [
-                    'user_id'   => $perawat->id,
-                    'diagnosis' => $conditions[$i]['diagnosis'],
-                    'treatment' => $conditions[$i]['treatment'],
-                ]
+                ['user_id' => $perawat->id, 'diagnosis' => $conditions[$i]['diagnosis'], 'treatment' => $conditions[$i]['treatment']]
             );
         }
     }

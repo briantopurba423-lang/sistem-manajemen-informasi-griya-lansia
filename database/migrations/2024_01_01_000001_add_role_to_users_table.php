@@ -10,14 +10,14 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->enum('role', ['admin', 'staff', 'keluarga'])->default('staff')->after('email');
-            $table->foreignId('resident_id')->nullable()->constrained()->onDelete('set null')->after('role');
+            // resident_id FK ditambahkan di migrasi terpisah setelah tabel residents dibuat
+            $table->unsignedBigInteger('resident_id')->nullable()->after('role');
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['resident_id']);
             $table->dropColumn(['role', 'resident_id']);
         });
     }
