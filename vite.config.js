@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/js/landing.jsx',
+                'resources/js/dashboard.jsx',
             ],
             refresh: true,
         }),
