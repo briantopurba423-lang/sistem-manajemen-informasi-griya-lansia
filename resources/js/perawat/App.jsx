@@ -2,22 +2,47 @@ import React, { useEffect, useState } from "react";
 import {
     HomeIcon, UsersIcon, HeartIcon, CalIcon,
     StethIcon, SettingsIcon, LogoutIcon, SearchIcon,
-    BellIcon, ChevronIcon,
+    BellIcon, ChevronIcon, ClipIcon,
 } from "./icons.jsx";
 import Dashboard from "./Dashboard.jsx";
 import DataLansia from "./DataLansia.jsx";
 import Kesehatan from "./Kesehatan.jsx";
 import Kegiatan from "./Kegiatan.jsx";
 import Pemeriksaan from "./Pemeriksaan.jsx";
+import Laporan from "./Laporan.jsx";
+import Pengaturan from "./Pengaturan.jsx";
 import api from "./api.js";
 
-const NAV = [
-    { key: "dashboard",    label: "Dashboard",    icon: HomeIcon },
-    { key: "lansia",       label: "Data Lansia",  icon: UsersIcon },
-    { key: "kesehatan",    label: "Kesehatan",    icon: HeartIcon },
-    { key: "pemeriksaan",  label: "Pemeriksaan",  icon: StethIcon },
-    { key: "kegiatan",     label: "Kegiatan",     icon: CalIcon },
+// Nav per role
+const NAV_PERAWAT = [
+    { key: "dashboard",   label: "Dashboard",   icon: HomeIcon },
+    { key: "lansia",      label: "Data Lansia", icon: UsersIcon },
+    { key: "kesehatan",   label: "Kesehatan",   icon: HeartIcon },
+    { key: "pemeriksaan", label: "Pemeriksaan", icon: StethIcon },
+    { key: "kegiatan",    label: "Kegiatan",    icon: CalIcon },
+    { key: "laporan",     label: "Laporan",     icon: ClipIcon },
 ];
+
+const NAV_ADMIN = [
+    { key: "dashboard",   label: "Dashboard",   icon: HomeIcon },
+    { key: "lansia",      label: "Data Lansia", icon: UsersIcon },
+    { key: "kesehatan",   label: "Kesehatan",   icon: HeartIcon },
+    { key: "pemeriksaan", label: "Pemeriksaan", icon: StethIcon },
+    { key: "kegiatan",    label: "Kegiatan",    icon: CalIcon },
+    { key: "laporan",     label: "Laporan",     icon: ClipIcon },
+];
+
+const NAV_KELUARGA = [
+    { key: "dashboard",   label: "Dashboard",   icon: HomeIcon },
+    { key: "kesehatan",   label: "Kesehatan",   icon: HeartIcon },
+    { key: "kegiatan",    label: "Kegiatan",    icon: CalIcon },
+];
+
+const ROLE_LABEL = {
+    admin:    "Administrator",
+    perawat:  "Perawat/Staff",
+    keluarga: "Keluarga",
+};
 
 export default function App() {
     const [page, setPage] = useState("dashboard");
@@ -25,13 +50,24 @@ export default function App() {
 
     useEffect(() => {
         const stored = localStorage.getItem("auth_user");
+        const token  = localStorage.getItem("auth_token");
+
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
+
         if (stored) {
             try { setUser(JSON.parse(stored)); } catch {}
         } else {
-            // redirect ke login jika tidak ada token
-            if (!localStorage.getItem("auth_token")) {
-                window.location.href = "/";
-            }
+            // Fetch user dari API
+            api.get("/user").then((r) => {
+                setUser(r.data);
+                localStorage.setItem("auth_user", JSON.stringify(r.data));
+            }).catch(() => {
+                localStorage.removeItem("auth_token");
+                window.location.href = "/login";
+            });
         }
     }, []);
 
@@ -39,10 +75,25 @@ export default function App() {
         try { await api.post("/logout"); } catch {}
         localStorage.removeItem("auth_token");
         localStorage.removeItem("auth_user");
-        window.location.href = "/";
+        window.location.href = "/login";
     };
 
-    const initials = user?.name?.split(" ").map((w) => w[0]).slice(0,2).join("").toUpperCase() ?? "P";
+    const role   = user?.role ?? "perawat";
+    const navMap = { admin: NAV_ADMIN, perawat: NAV_PERAWAT, keluarga: NAV_KELUARGA };
+    const NAV    = navMap[role] ?? NAV_PERAWAT;
+    const initials = user?.name?.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() ?? "U";
+
+    if (!user) {
+        return (
+            <div style={{
+                minHeight: "100vh", display: "flex",
+                alignItems: "center", justifyContent: "center",
+                fontFamily: "Inter, sans-serif", color: "#64748b",
+            }}>
+                Memuat...
+            </div>
+        );
+    }
 
     return (
         <div className="pw-layout">
@@ -95,8 +146,8 @@ export default function App() {
                         <div className="pw-user">
                             <div className="pw-user-avatar">{initials}</div>
                             <div className="pw-user-info">
-                                <div className="pw-user-name">{user?.name ?? "Perawat"}</div>
-                                <div className="pw-user-role">Perawat/Staff</div>
+                                <div className="pw-user-name">{user?.name ?? "-"}</div>
+                                <div className="pw-user-role">{ROLE_LABEL[role]}</div>
                             </div>
                             <ChevronIcon size={14} color="#94a3b8" />
                         </div>
@@ -110,12 +161,8 @@ export default function App() {
                     {page === "kesehatan"   && <Kesehatan />}
                     {page === "pemeriksaan" && <Pemeriksaan />}
                     {page === "kegiatan"    && <Kegiatan />}
-                    {page === "pengaturan"  && (
-                        <div>
-                            <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Pengaturan</h1>
-                            <p style={{ color: "#64748b", fontSize: 13 }}>Fitur pengaturan akan segera tersedia.</p>
-                        </div>
-                    )}
+                    {page === "laporan"     && <Laporan />}
+                    {page === "pengaturan"  && <Pengaturan user={user} onUserUpdate={setUser} />}
                 </main>
             </div>
         </div>

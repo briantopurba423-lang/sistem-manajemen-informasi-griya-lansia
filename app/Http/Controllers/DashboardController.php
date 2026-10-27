@@ -15,11 +15,11 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
-        $totalResidents       = Resident::where('status', 'aktif')->count();
-        $todayExams           = Examination::whereDate('exam_date', $today)->count();
-        $todayExamsDone       = Examination::whereDate('exam_date', $today)->where('status', 'selesai')->count();
-        $todayActivities      = DailyActivity::whereDate('activity_date', $today)->count();
-        $todayActivitiesDone  = DailyActivity::whereDate('activity_date', $today)->where('status', 'selesai')->count();
+        $totalResidents      = Resident::where('status', 'aktif')->count();
+        $todayExams          = Examination::whereDate('exam_date', $today)->count();
+        $todayExamsDone      = Examination::whereDate('exam_date', $today)->where('status', 'selesai')->count();
+        $todayActivities     = DailyActivity::whereDate('activity_date', $today)->count();
+        $todayActivitiesDone = DailyActivity::whereDate('activity_date', $today)->where('status', 'selesai')->count();
 
         $examinations = Examination::with('resident')
             ->whereDate('exam_date', $today)
@@ -67,5 +67,11 @@ class DashboardController extends Controller
             'activities'        => $activities,
             'health_conditions' => $healthConditions,
         ]);
+    }
+
+    // Alias untuk kompatibilitas
+    public function stats(Request $request)
+    {
+        return $this->index($request);
     }
 }
