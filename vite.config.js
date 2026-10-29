@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/js/landing.jsx',
                 'resources/js/dashboard.jsx',
                 'resources/js/auth/login.jsx',
+                'resources/js/keluarga/dashboard.jsx',
             ],
             refresh: true,
         }),

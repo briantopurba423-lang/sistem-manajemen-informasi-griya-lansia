@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Models;
@@ -11,15 +10,8 @@ class Resident extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'nik',
-        'gender',
-        'birth_date',
-        'room',
-        'address',
-        'family_name',
-        'family_phone',
-        'status',
+        'name', 'nik', 'gender', 'birth_date', 'room',
+        'address', 'family_name', 'family_phone', 'status', 'notes',
     ];
 
     protected $casts = [
@@ -40,10 +32,4 @@ class Resident extends Model
     {
         return $this->hasMany(Medication::class);
     }
-
-    public function shifts()
-    {
-        return $this->hasMany(Shift::class);
-    }
 }
-```

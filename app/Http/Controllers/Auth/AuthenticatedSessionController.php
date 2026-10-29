@@ -31,15 +31,23 @@ class AuthenticatedSessionController extends Controller
 
         // Jika request dari React (AJAX/fetch), kembalikan JSON
         if ($request->expectsJson()) {
+            $redirect = $request->user()->role === 'keluarga'
+                ? route('keluarga.dashboard')
+                : route('dashboard');
+
             return response()->json([
                 'message'  => 'Login berhasil.',
-                'redirect' => route('dashboard'),
+                'redirect' => $redirect,
                 'user'     => $request->user(),
             ]);
         }
 
-        // Jika request form biasa, redirect ke dashboard
-        return redirect()->intended(route('dashboard'));
+        // Jika request form biasa, redirect sesuai role
+        $redirect = $request->user()->role === 'keluarga'
+            ? route('keluarga.dashboard')
+            : route('dashboard');
+
+        return redirect()->intended($redirect);
     }
 
     public function destroy(Request $request)
