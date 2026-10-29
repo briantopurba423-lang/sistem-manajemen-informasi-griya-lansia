@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "prebuild": "node -e \"try{require('fs').unlinkSync('public/hot')}catch(e){}\"",
         "build": "vite build",
         "dev": "vite"
     },

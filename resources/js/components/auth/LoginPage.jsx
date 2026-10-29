@@ -1,274 +1,299 @@
 import React, { useState } from 'react';
 
+const ROLES = [
+    { id: 'admin',    label: 'Admin',          desc: 'Manajemen sistem' },
+    { id: 'perawat',  label: 'Perawat / Staff', desc: 'Pelayanan lansia' },
+    { id: 'keluarga', label: 'Keluarga',        desc: 'Pantau orang terkasih' },
+];
+
+const DESTINATIONS = {
+    admin:    '/admin/dashboard',
+    perawat:  '/perawat/dashboard',
+    keluarga: '/keluarga/dashboard',
+};
+
+// SVG icons — tidak ada emoji agar tidak ada masalah encoding
+function HouseIcon() {
+    return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+            stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+    );
+}
+
+function HeartIcon() {
+    return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#93c5fd"
+            stroke="#93c5fd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+        </svg>
+    );
+}
+
+function LockIcon() {
+    return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+    );
+}
+
 export default function LoginPage() {
+    const [role, setRole]         = useState('perawat');
     const [email, setEmail]       = useState('');
     const [password, setPassword] = useState('');
-    const [remember, setRemember] = useState(false);
-    const [errors, setErrors]     = useState({});
-    const [loading, setLoading]   = useState(false);
     const [showPass, setShowPass] = useState(false);
-
-    const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    const [error, setError]       = useState('');
+    const [loading, setLoading]   = useState(false);
 
     async function handleSubmit(e) {
         e.preventDefault();
-        setErrors({});
+        setError('');
         setLoading(true);
 
         try {
-            const res = await fetch('/login', {
+            const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrf,
                 },
-                body: JSON.stringify({ email, password, remember }),
+                body: JSON.stringify({ email, password, role }),
             });
 
             const data = await res.json();
 
             if (!res.ok) {
-                // Laravel validation errors
-                setErrors(data.errors ?? { email: [data.message ?? 'Login gagal.'] });
+                if (data.errors) {
+                    const msgs = Object.values(data.errors).flat();
+                    setError(msgs[0] ?? 'Login gagal.');
+                } else {
+                    setError(data.message ?? 'Login gagal.');
+                }
                 return;
             }
 
-            // Redirect ke dashboard
-            window.location.href = data.redirect ?? '/dashboard';
+            localStorage.setItem('auth_token', data.token);
+            localStorage.setItem('auth_user', JSON.stringify(data.user));
+
+            window.location.href = DESTINATIONS[data.user.role] ?? '/';
         } catch {
-            setErrors({ email: ['Terjadi kesalahan. Coba lagi.'] });
+            setError('Tidak dapat terhubung ke server. Coba lagi.');
         } finally {
             setLoading(false);
         }
     }
 
+    const inputStyle = {
+        width: '100%', padding: '11px 14px', fontSize: 13,
+        border: '1px solid #e2e8f0', borderRadius: 10,
+        outline: 'none', boxSizing: 'border-box',
+        background: '#fbfcfb', color: '#1e293b',
+    };
+
     return (
-        <div className="min-h-screen flex" style={{ backgroundColor: '#f0f4f8' }}>
-            {/* Left panel - branding */}
-            <div
-                className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12"
-                style={{ backgroundColor: '#1e2a3a' }}
-            >
-                {/* Logo */}
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                        style={{ backgroundColor: '#2d3f55' }}>
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
+        <div style={{ minHeight: '100vh', display: 'flex', fontFamily: 'Inter, sans-serif' }}>
+
+            {/* Panel Kiri */}
+            <div style={{
+                width: '45%', background: '#1e293b', padding: '48px',
+                display: 'flex', flexDirection: 'column',
+                justifyContent: 'space-between', color: '#fff',
+            }}>
+                {/* Brand */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{
+                        width: 44, height: 44, borderRadius: 12, background: '#3b82f6',
+                        display: 'grid', placeItems: 'center',
+                    }}>
+                        <HouseIcon />
                     </div>
                     <div>
-                        <div className="text-white font-bold text-lg leading-tight">Griya Lansia</div>
-                        <div className="text-xs" style={{ color: '#8fa8c8' }}>Sistem Informasi Manajemen</div>
+                        <div style={{ fontWeight: 700, fontSize: 18 }}>Griya Lansia</div>
+                        <div style={{ fontSize: 11, color: '#94a3b8' }}>Sistem Informasi Manajemen</div>
                     </div>
                 </div>
 
-                {/* Center illustration text */}
+                {/* Hero */}
                 <div>
-                    <h1 className="text-3xl font-bold text-white leading-snug mb-4">
-                        Kelola Hunian Lansia<br />dengan Lebih Mudah
+                    <h1 style={{ fontSize: 32, fontWeight: 700, lineHeight: 1.3, marginBottom: 16 }}>
+                        Merawat dengan<br />
+                        <span style={{ color: '#93c5fd' }}>sepenuh hati.</span>
                     </h1>
-                    <p style={{ color: '#8fa8c8' }} className="text-sm leading-relaxed">
-                        Platform manajemen terpadu untuk memantau kesehatan,
-                        kegiatan, dan kesejahteraan penghuni Griya Lansia secara
-                        real-time dan efisien.
+                    <p style={{ fontSize: 14, color: '#94a3b8', lineHeight: 1.8 }}>
+                        Satu ruang digital untuk memberikan pelayanan terbaik,
+                        memantau kesehatan, dan menjaga kebahagiaan setiap lansia.
                     </p>
-
-                    {/* Feature pills */}
-                    <div className="flex flex-wrap gap-2 mt-6">
-                        {['Data Lansia', 'Rekam Kesehatan', 'Jadwal Kegiatan', 'Laporan'].map((f) => (
-                            <span key={f}
-                                className="px-3 py-1 rounded-full text-xs font-medium"
-                                style={{ backgroundColor: '#2d3f55', color: '#8fa8c8' }}>
-                                {f}
-                            </span>
-                        ))}
+                    <div style={{
+                        marginTop: 28, padding: 18, borderRadius: 14,
+                        border: '1px solid rgba(255,255,255,.1)',
+                        background: 'rgba(255,255,255,.05)',
+                        display: 'flex', alignItems: 'center', gap: 14,
+                    }}>
+                        <div style={{
+                            width: 44, height: 44, borderRadius: 12,
+                            background: 'rgba(147,197,253,.1)',
+                            display: 'grid', placeItems: 'center',
+                        }}>
+                            <HeartIcon />
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: 600, fontSize: 14 }}>Setiap lansia berarti.</div>
+                            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 3 }}>
+                                Perawatan penuh perhatian, setiap hari.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Stats row */}
-                <div className="grid grid-cols-3 gap-4">
-                    {[
-                        { value: '35+', label: 'Penghuni Aktif' },
-                        { value: '12', label: 'Tenaga Perawat' },
-                        { value: '20', label: 'Kamar Tersedia' },
-                    ].map((s) => (
-                        <div key={s.label} className="text-center">
-                            <div className="text-2xl font-bold text-white">{s.value}</div>
-                            <div className="text-xs mt-0.5" style={{ color: '#8fa8c8' }}>{s.label}</div>
-                        </div>
-                    ))}
-                </div>
+                <p style={{ fontSize: 11, color: '#475569' }}>
+                    &copy; 2026 Griya Lansia &middot; Sistem Informasi Manajemen
+                </p>
             </div>
 
-            {/* Right panel - form */}
-            <div className="flex-1 flex items-center justify-center px-6 py-12">
-                <div className="w-full max-w-md">
-                    {/* Mobile logo */}
-                    <div className="flex items-center gap-3 mb-8 lg:hidden">
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center"
-                            style={{ backgroundColor: '#1e2a3a' }}>
-                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                        </div>
-                        <span className="font-bold text-gray-800">Griya Lansia</span>
-                    </div>
+            {/* Panel Kanan */}
+            <div style={{
+                flex: 1, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', padding: '40px 48px', background: '#f8fafc',
+            }}>
+                <div style={{ width: '100%', maxWidth: 460 }}>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-1">Selamat Datang</h2>
-                        <p className="text-sm text-gray-500 mb-7">
-                            Masuk ke panel administrasi Griya Lansia
+                    <div style={{ marginBottom: 28 }}>
+                        <span style={{
+                            fontSize: 11, fontWeight: 700, letterSpacing: 2,
+                            color: '#3b82f6', textTransform: 'uppercase',
+                        }}>
+                            SELAMAT DATANG
+                        </span>
+                        <h2 style={{ fontSize: 28, fontWeight: 700, color: '#0f172a', margin: '10px 0 6px' }}>
+                            Masuk ke akun Anda
+                        </h2>
+                        <p style={{ fontSize: 13, color: '#64748b' }}>
+                            Silakan masuk untuk mengakses layanan Griya Lansia.
                         </p>
-
-                        <form onSubmit={handleSubmit} noValidate>
-                            {/* Email */}
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                                    Email
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                                        </svg>
-                                    </span>
-                                    <input
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="admin@griyalansia.id"
-                                        autoComplete="email"
-                                        required
-                                        className={`w-full pl-9 pr-4 py-2.5 rounded-lg border text-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
-                                            errors.email
-                                                ? 'border-red-400 bg-red-50'
-                                                : 'border-gray-300 bg-white focus:border-blue-400'
-                                        }`}
-                                    />
-                                </div>
-                                {errors.email && (
-                                    <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
-                                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd"
-                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                clipRule="evenodd" />
-                                        </svg>
-                                        {errors.email[0]}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Password */}
-                            <div className="mb-5">
-                                <div className="flex items-center justify-between mb-1.5">
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Password
-                                    </label>
-                                    <a href="#" className="text-xs font-medium" style={{ color: '#4a7fa5' }}>
-                                        Lupa password?
-                                    </a>
-                                </div>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                        </svg>
-                                    </span>
-                                    <input
-                                        type={showPass ? 'text' : 'password'}
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
-                                        autoComplete="current-password"
-                                        required
-                                        className={`w-full pl-9 pr-10 py-2.5 rounded-lg border text-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${
-                                            errors.password
-                                                ? 'border-red-400 bg-red-50'
-                                                : 'border-gray-300 bg-white focus:border-blue-400'
-                                        }`}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPass(!showPass)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
-                                        tabIndex={-1}
-                                    >
-                                        {showPass ? (
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                            </svg>
-                                        ) : (
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        )}
-                                    </button>
-                                </div>
-                                {errors.password && (
-                                    <p className="mt-1.5 text-xs text-red-600">{errors.password[0]}</p>
-                                )}
-                            </div>
-
-                            {/* Remember me */}
-                            <div className="flex items-center gap-2 mb-6">
-                                <input
-                                    id="remember"
-                                    type="checkbox"
-                                    checked={remember}
-                                    onChange={(e) => setRemember(e.target.checked)}
-                                    className="w-4 h-4 rounded border-gray-300 cursor-pointer"
-                                    style={{ accentColor: '#2d3a4a' }}
-                                />
-                                <label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer select-none">
-                                    Ingat saya
-                                </label>
-                            </div>
-
-                            {/* Submit */}
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full py-2.5 px-4 rounded-lg text-sm font-semibold text-white transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                                style={{ backgroundColor: loading ? '#4a6a8a' : '#1e2a3a' }}
-                                onMouseOver={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#2d3f55'; }}
-                                onMouseOut={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#1e2a3a'; }}
-                            >
-                                {loading ? (
-                                    <>
-                                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10"
-                                                stroke="currentColor" strokeWidth="4" />
-                                            <path className="opacity-75" fill="currentColor"
-                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                        </svg>
-                                        Memproses...
-                                    </>
-                                ) : (
-                                    'Masuk'
-                                )}
-                            </button>
-                        </form>
                     </div>
 
-                    {/* Back to home */}
-                    <p className="text-center mt-5 text-sm text-gray-500">
-                        <a href="/" className="hover:text-gray-700 transition flex items-center justify-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                            Kembali ke halaman utama
-                        </a>
+                    <form onSubmit={handleSubmit}>
+
+                        {/* Role Selector */}
+                        <div style={{ marginBottom: 22 }}>
+                            <label style={{
+                                fontSize: 12, fontWeight: 700, color: '#344d46',
+                                display: 'block', marginBottom: 8,
+                            }}>
+                                Masuk sebagai
+                            </label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                                {ROLES.map((r) => (
+                                    <button
+                                        key={r.id} type="button"
+                                        onClick={() => setRole(r.id)}
+                                        style={{
+                                            padding: '12px 10px', borderRadius: 12, textAlign: 'left',
+                                            border: role === r.id ? '2px solid #3b82f6' : '1px solid #e2e8f0',
+                                            background: role === r.id ? '#eff6ff' : '#fff',
+                                            cursor: 'pointer', transition: 'all .15s',
+                                        }}
+                                    >
+                                        <div style={{
+                                            fontSize: 12, fontWeight: 700,
+                                            color: role === r.id ? '#1d4ed8' : '#344d46',
+                                        }}>
+                                            {r.label}
+                                        </div>
+                                        <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 3 }}>
+                                            {r.desc}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Email */}
+                        <div style={{ marginBottom: 16 }}>
+                            <label style={{
+                                fontSize: 12, fontWeight: 700, color: '#344d46',
+                                display: 'block', marginBottom: 6,
+                            }}>
+                                Alamat Email
+                            </label>
+                            <input
+                                type="email" required
+                                value={email} onChange={(e) => setEmail(e.target.value)}
+                                placeholder="nama@email.com" autoComplete="username"
+                                style={inputStyle}
+                            />
+                        </div>
+
+                        {/* Password */}
+                        <div style={{ marginBottom: 20 }}>
+                            <label style={{
+                                fontSize: 12, fontWeight: 700, color: '#344d46',
+                                display: 'block', marginBottom: 6,
+                            }}>
+                                Kata Sandi
+                            </label>
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type={showPass ? 'text' : 'password'} required
+                                    value={password} onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Masukkan kata sandi" autoComplete="current-password"
+                                    style={{ ...inputStyle, paddingRight: 42 }}
+                                />
+                                <button
+                                    type="button" onClick={() => setShowPass(!showPass)}
+                                    style={{
+                                        position: 'absolute', right: 12, top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        background: 'none', border: 'none',
+                                        cursor: 'pointer', color: '#94a3b8', fontSize: 13,
+                                        fontWeight: 600,
+                                    }}
+                                >
+                                    {showPass ? 'Sembunyikan' : 'Tampilkan'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Error */}
+                        {error && (
+                            <div style={{
+                                marginBottom: 16, padding: '10px 14px', borderRadius: 10,
+                                background: '#fee2e2', border: '1px solid #fecaca',
+                                color: '#b91c1c', fontSize: 13,
+                            }}>
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Submit */}
+                        <button
+                            type="submit" disabled={loading}
+                            style={{
+                                width: '100%', padding: '13px', borderRadius: 10,
+                                background: loading ? '#93c5fd' : '#1d4ed8',
+                                color: '#fff', fontWeight: 700, fontSize: 14,
+                                border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
+                                transition: 'background .2s',
+                            }}
+                        >
+                            {loading ? 'Memproses...' : 'Masuk ke Dashboard'}
+                        </button>
+                    </form>
+
+                    <div style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        gap: 6, marginTop: 22, fontSize: 12, color: '#64748b',
+                    }}>
+                        <LockIcon /> Akses aman untuk pengguna terdaftar
+                    </div>
+
+                    <p style={{ textAlign: 'center', marginTop: 14, fontSize: 11, color: '#94a3b8' }}>
+                        Butuh bantuan masuk? Hubungi administrator sistem.
                     </p>
                 </div>
             </div>

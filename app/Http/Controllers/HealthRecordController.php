@@ -8,28 +8,19 @@ use Illuminate\Http\Request;
 
 class HealthRecordController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('kesehatan.index');
-    }
+        $query = HealthRecord::with('resident');
 
-    public function list(Request $request)
-    {
-        $q = $request->get('q');
-        $residentId = $request->get('resident_id');
-
-        $query = HealthRecord::with(['resident:id,name,room', 'staff:id,name'])
-            ->orderBy('check_date', 'desc');
-
-        if ($q) {
-            $query->whereHas('resident', fn($r) => $r->where('name', 'like', "%$q%"));
+        if ($request->resident_id) {
+            $query->where('resident_id', $request->resident_id);
         }
 
-        if ($residentId) {
-            $query->where('resident_id', $residentId);
+        if ($request->search) {
+            $query->whereHas('resident', fn($q) => $q->where('name', 'like', "%{$request->search}%"));
         }
 
-        return response()->json($query->paginate(10));
+        return response()->json($query->orderByDesc('check_date')->paginate(10));
     }
 
     public function store(Request $request)
@@ -48,21 +39,21 @@ class HealthRecordController extends Controller
             'notes'                    => 'nullable|string',
         ]);
 
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = $request->user()->id;
         $record = HealthRecord::create($data);
 
-        return response()->json($record->load('resident:id,name'), 201);
+        return response()->json($record->load('resident'), 201);
     }
 
     public function show(HealthRecord $healthRecord)
     {
-        return response()->json($healthRecord->load(['resident:id,name,room', 'staff:id,name']));
+        return response()->json($healthRecord->load('resident'));
     }
 
     public function update(Request $request, HealthRecord $healthRecord)
     {
         $data = $request->validate([
-            'check_date'               => 'required|date',
+            'check_date'               => 'sometimes|date',
             'blood_pressure_systolic'  => 'nullable|numeric',
             'blood_pressure_diastolic' => 'nullable|numeric',
             'heart_rate'               => 'nullable|numeric',
@@ -75,19 +66,12 @@ class HealthRecordController extends Controller
         ]);
 
         $healthRecord->update($data);
-        return response()->json($healthRecord->load('resident:id,name'));
+        return response()->json($healthRecord->load('resident'));
     }
 
     public function destroy(HealthRecord $healthRecord)
     {
         $healthRecord->delete();
-        return response()->json(['message' => 'Rekam kesehatan berhasil dihapus.']);
-    }
-
-    public function residents()
-    {
-        return response()->json(
-            Resident::where('status', 'aktif')->orderBy('name')->get(['id', 'name', 'room'])
-        );
+        return response()->json(['message' => 'Data kesehatan berhasil dihapus.']);
     }
 }

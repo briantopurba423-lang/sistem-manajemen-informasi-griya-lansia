@@ -16,8 +16,17 @@ class HealthRecord extends Model
         'diagnosis', 'treatment', 'notes',
     ];
 
-    protected $casts = ['check_date' => 'date'];
+    protected $casts = [
+        'check_date' => 'date',
+    ];
 
-    public function resident() { return $this->belongsTo(Resident::class); }
-    public function staff()    { return $this->belongsTo(User::class, 'user_id'); }
+    public function resident()
+    {
+        return $this->belongsTo(Resident::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
