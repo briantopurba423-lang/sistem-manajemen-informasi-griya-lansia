@@ -1,4 +1,3 @@
-import React from 'react';
 
 const links = {
     'Layanan': ['Perawatan Kesehatan', 'Manajemen Penghuni', 'Aktivitas & Terapi', 'Portal Keluarga', 'Laporan Analitik'],

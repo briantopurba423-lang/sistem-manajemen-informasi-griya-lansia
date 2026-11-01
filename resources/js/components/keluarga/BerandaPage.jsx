@@ -1,4 +1,3 @@
-import React from 'react';
 
 const categoryColors = {
     fisik:   { bg: 'bg-blue-500',   text: 'Fisik' },

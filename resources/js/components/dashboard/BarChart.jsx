@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function BarChart({ data }) {
     if (!data || data.length === 0) return null;

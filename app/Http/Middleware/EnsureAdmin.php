@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 
 class EnsureAdmin
 {
+    /**
+     * Allow admin and staff. Block keluarga → send to their own dashboard.
+     */
     public function handle(Request $request, Closure $next)
     {
         $user = auth()->user();
@@ -15,7 +18,6 @@ class EnsureAdmin
             return redirect()->route('login');
         }
 
-        // Keluarga tidak boleh akses halaman admin — arahkan ke dashboard mereka
         if ($user->role === 'keluarga') {
             return redirect()->route('keluarga.dashboard');
         }

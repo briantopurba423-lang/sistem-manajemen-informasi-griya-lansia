@@ -1,4 +1,3 @@
-import React from 'react';
 
 const statusColor = { aktif: 'bg-green-100 text-green-700', tidak_aktif: 'bg-yellow-100 text-yellow-700', meninggal: 'bg-red-100 text-red-600' };
 const genderLabel = { L: 'Laki-laki', P: 'Perempuan' };

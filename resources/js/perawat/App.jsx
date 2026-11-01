@@ -49,33 +49,41 @@ export default function App() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const stored = localStorage.getItem("auth_user");
-        const token  = localStorage.getItem("auth_token");
-
-        if (!token) {
-            window.location.href = "/login";
-            return;
-        }
-
-        if (stored) {
-            try { setUser(JSON.parse(stored)); } catch {}
-        } else {
-            // Fetch user dari API
-            api.get("/user").then((r) => {
-                setUser(r.data);
-                localStorage.setItem("auth_user", JSON.stringify(r.data));
-            }).catch(() => {
-                localStorage.removeItem("auth_token");
-                window.location.href = "/login";
+        // Use session auth — fetch user from /me endpoint
+        fetch('/me', {
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin',
+        })
+            .then(res => {
+                if (!res.ok) {
+                    window.location.href = '/login';
+                    return null;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data?.user) {
+                    setUser(data.user);
+                }
+            })
+            .catch(() => {
+                window.location.href = '/login';
             });
-        }
     }, []);
 
     const logout = async () => {
-        try { await api.post("/logout"); } catch {}
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("auth_user");
-        window.location.href = "/login";
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+        try {
+            await fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                },
+                credentials: 'same-origin',
+            });
+        } catch {}
+        window.location.href = '/login';
     };
 
     const role   = user?.role ?? "perawat";

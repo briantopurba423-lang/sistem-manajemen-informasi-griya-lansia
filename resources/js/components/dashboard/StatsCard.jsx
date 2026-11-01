@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function StatsCard({ icon, label, value, diff }) {
     const isPositive = diff >= 0;

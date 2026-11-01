@@ -27,9 +27,9 @@ class DashboardController extends Controller
             ->get()
             ->map(fn($e) => [
                 'id'       => $e->id,
-                'resident' => $e->resident->name ?? '-',
-                'type'     => $e->type,
-                'time'     => substr($e->exam_time, 0, 5),
+                'resident' => $e->resident?->name ?? '-',
+                'type'     => $e->type ?? '-',
+                'time'     => $e->exam_time ? substr($e->exam_time, 0, 5) : '-',
                 'status'   => $e->status,
             ]);
 
@@ -39,7 +39,7 @@ class DashboardController extends Controller
             ->map(fn($a) => [
                 'id'     => $a->id,
                 'name'   => $a->name,
-                'time'   => substr($a->activity_time, 0, 5),
+                'time'   => $a->activity_time ? substr($a->activity_time, 0, 5) : '-',
                 'status' => $a->status,
             ]);
 
@@ -49,10 +49,10 @@ class DashboardController extends Controller
             ->get()
             ->map(fn($h) => [
                 'id'        => $h->id,
-                'resident'  => $h->resident->name ?? '-',
-                'complaint' => $h->diagnosis ?? '-',
-                'treatment' => $h->treatment ?? '-',
-                'date'      => $h->check_date->format('d M Y'),
+                'resident'  => $h->resident?->name ?? '-',
+                'complaint' => $h->diagnosis  ?? '-',
+                'treatment' => $h->treatment  ?? '-',
+                'date'      => $h->check_date ? $h->check_date->format('d M Y') : '-',
             ]);
 
         return response()->json([
@@ -69,7 +69,6 @@ class DashboardController extends Controller
         ]);
     }
 
-    // Alias untuk kompatibilitas
     public function stats(Request $request)
     {
         return $this->index($request);

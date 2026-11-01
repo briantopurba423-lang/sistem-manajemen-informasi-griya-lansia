@@ -7,15 +7,22 @@ use Illuminate\Http\Request;
 
 class ResidentController extends Controller
 {
-    public function index(Request $request)
+    /** View route — returns blade view */
+    public function index()
+    {
+        return view('lansia.index');
+    }
+
+    /** API — paginated list (used by React admin pages) */
+    public function list(Request $request)
     {
         $query = Resident::query();
 
-        if ($request->search) {
+        if ($request->q) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('nik', 'like', "%{$request->search}%")
-                  ->orWhere('room', 'like', "%{$request->search}%");
+                $q->where('name', 'like', "%{$request->q}%")
+                  ->orWhere('nik',  'like', "%{$request->q}%")
+                  ->orWhere('room', 'like', "%{$request->q}%");
             });
         }
 
@@ -41,13 +48,14 @@ class ResidentController extends Controller
             'notes'        => 'nullable|string',
         ]);
 
-        $resident = Resident::create($data);
-        return response()->json($resident, 201);
+        return response()->json(Resident::create($data), 201);
     }
 
     public function show(Resident $resident)
     {
-        return response()->json($resident->load(['healthRecords' => fn($q) => $q->latest()->limit(5)]));
+        return response()->json(
+            $resident->load(['healthRecords' => fn($q) => $q->latest()->limit(5)])
+        );
     }
 
     public function update(Request $request, Resident $resident)

@@ -11,17 +11,16 @@ class AuthenticatedSessionController extends Controller
 {
     public function store(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email'    => ['required', 'email'],
             'password' => ['required', 'string'],
             'remember' => ['sometimes', 'boolean'],
         ]);
 
-        if (!Auth::attempt([
-            'email'    => $credentials['email'],
-            'password' => $credentials['password'],
-        ], $request->boolean('remember'))) {
-
+        if (!Auth::attempt(
+            ['email' => $request->email, 'password' => $request->password],
+            $request->boolean('remember')
+        )) {
             throw ValidationException::withMessages([
                 'email' => ['Email atau password salah.'],
             ]);
@@ -29,12 +28,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Jika request dari React (AJAX/fetch), kembalikan JSON
-        if ($request->expectsJson()) {
-            $redirect = $request->user()->role === 'keluarga'
-                ? route('keluarga.dashboard')
-                : route('dashboard');
+        $redirect = $this->redirectForRole($request->user()->role);
 
+        if ($request->expectsJson()) {
             return response()->json([
                 'message'  => 'Login berhasil.',
                 'redirect' => $redirect,
@@ -42,18 +38,21 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        // Jika request form biasa, redirect sesuai role
-        $redirect = $request->user()->role === 'keluarga'
-            ? route('keluarga.dashboard')
-            : route('dashboard');
-
         return redirect()->intended($redirect);
+    }
+
+    private function redirectForRole(string $role): string
+    {
+        return match ($role) {
+            'keluarga' => route('keluarga.dashboard'),
+            'staff'    => route('perawat'),
+            default    => route('dashboard'),   // admin
+        };
     }
 
     public function destroy(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
@@ -66,8 +65,6 @@ class AuthenticatedSessionController extends Controller
 
     public function me(Request $request)
     {
-        return response()->json([
-            'user' => $request->user(),
-        ]);
+        return response()->json(['user' => $request->user()]);
     }
 }
