@@ -263,9 +263,11 @@ export default function Dashboard({ user, onNavigate }) {
                 api.get("/dashboard"),
                 api.get("/residents?per_page=100"),
             ]);
-            setData(dash.data);
-            setResidents(res.data.data ?? []);
-        } catch {}
+            setData(dash.data ?? dash);
+            setResidents(res.data?.data ?? res.data ?? []);
+        } catch (e) {
+            console.error('Dashboard load error:', e);
+        }
     };
 
     useEffect(() => { load(); }, []);
@@ -274,7 +276,10 @@ export default function Dashboard({ user, onNavigate }) {
 
     if (!data) return <div className="pw-loading">Memuat data dashboard...</div>;
 
-    const { stats, examinations, activities, health_conditions } = data;
+    const stats           = data.stats           ?? {};
+    const examinations    = data.examinations    ?? [];
+    const activities      = data.activities      ?? [];
+    const health_conditions = data.health_conditions ?? [];
 
     return (
         <div>

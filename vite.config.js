@@ -5,6 +5,11 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
     plugins: [
+        // React HARUS di posisi pertama
+        react({
+            jsxRuntime: 'automatic',
+        }),
+        tailwindcss(),
         laravel({
             input: [
                 'resources/css/app.css',
@@ -22,7 +27,10 @@ export default defineConfig({
             ],
             refresh: true,
         }),
-        react(),
-        tailwindcss(),
     ],
+    server: {
+        watch: {
+            ignored: ['**/storage/framework/views/**'],
+        },
+    },
 });

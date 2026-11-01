@@ -13,16 +13,18 @@ class ResidentController extends Controller
         return view('lansia.index');
     }
 
-    /** API — paginated list (used by React admin pages) */
+    /** API — paginated list (used by React admin pages & perawat) */
     public function list(Request $request)
     {
         $query = Resident::query();
 
-        if ($request->q) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->q}%")
-                  ->orWhere('nik',  'like', "%{$request->q}%")
-                  ->orWhere('room', 'like', "%{$request->q}%");
+        // Dukung 'q' (admin) dan 'search' (perawat)
+        $search = $request->q ?? $request->search;
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('nik',  'like', "%{$search}%")
+                  ->orWhere('room', 'like', "%{$search}%");
             });
         }
 
@@ -30,7 +32,10 @@ class ResidentController extends Controller
             $query->where('status', $request->status);
         }
 
-        return response()->json($query->orderBy('name')->paginate(10));
+        // Dukung per_page (perawat minta 100 untuk dropdown)
+        $perPage = min((int) ($request->per_page ?? 10), 200);
+
+        return response()->json($query->orderBy('name')->paginate($perPage));
     }
 
     public function store(Request $request)

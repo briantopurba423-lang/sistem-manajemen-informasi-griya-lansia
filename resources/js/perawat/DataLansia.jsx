@@ -111,9 +111,13 @@ export default function DataLansia() {
         setLoading(true);
         try {
             const r = await api.get("/residents", { params: { search, page } });
-            setRows(r.data.data);
-            setMeta(r.data);
-        } catch {}
+            const payload = r.data ?? r;
+            setRows(payload.data ?? []);
+            setMeta(payload);
+        } catch (e) {
+            console.error('DataLansia load error:', e);
+            setRows([]);
+        }
         setLoading(false);
     };
 

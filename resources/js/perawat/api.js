@@ -1,89 +1,100 @@
 /**
- * Perawat API — session-based (no token needed).
- * Maps old Sanctum endpoint names to the correct web routes.
+ * Perawat API — session-based (no Sanctum token).
+ * Memetakan URL lama ke web routes yang benar.
  */
 
 const csrf = () =>
     document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
-// Map old Sanctum paths → actual web API paths
+// Mapping: path lama → path baru (web routes)
 const ROUTE_MAP = {
-    '/residents':       '/api/lansia',
-    '/examinations':    '/api/examinations',
-    '/health-records':  '/api/kesehatan',
-    '/daily-activities':'/api/daily-activities',
-    '/dashboard':       '/api/dashboard/stats',
-    '/laporan/summary': '/api/laporan/summary',
-    '/user':            '/me',
-    '/logout':          '/logout',
-    '/profile':         '/api/profile',
+    '/residents':        '/api/lansia',
+    '/examinations':     '/api/examinations',
+    '/health-records':   '/api/kesehatan',
+    '/daily-activities': '/api/daily-activities',
+    '/dashboard':        '/api/dashboard/stats',
+    '/laporan/summary':  '/api/laporan/summary',
+    '/user':             '/me',
+    '/logout':           '/logout',
+    '/profile':          '/api/profile',
 };
 
-function mapUrl(url) {
-    // Exact match first
-    if (ROUTE_MAP[url]) return ROUTE_MAP[url];
+/**
+ * Petakan URL ke route web yang benar.
+ * Handles: exact match, prefix match, dan URL dengan query string.
+ */
+function mapUrl(rawUrl) {
+    // Pisahkan path dari query string jika ada
+    const qIdx     = rawUrl.indexOf('?');
+    const path     = qIdx >= 0 ? rawUrl.slice(0, qIdx) : rawUrl;
+    const qs       = qIdx >= 0 ? rawUrl.slice(qIdx)    : '';
 
-    // Prefix match (e.g. /residents/5 → /api/lansia/5)
+    // Exact match
+    if (ROUTE_MAP[path]) return ROUTE_MAP[path] + qs;
+
+    // Prefix match — contoh: /residents/5 → /api/lansia/5
     for (const [from, to] of Object.entries(ROUTE_MAP)) {
-        if (url.startsWith(from + '/')) {
-            return to + url.slice(from.length);
+        if (path.startsWith(from + '/')) {
+            return to + path.slice(from.length) + qs;
         }
     }
 
-    // Already absolute or unmapped — use as-is with /api prefix if needed
-    if (url.startsWith('/')) return url;
-    return '/api/' + url;
+    // Sudah URL absolut atau tidak perlu dipetakan
+    return rawUrl;
 }
 
-async function request(method, url, body = null, params = null) {
-    let fullUrl = mapUrl(url);
+async function request(method, rawUrl, body = null, params = null) {
+    let url = mapUrl(rawUrl);
 
-    // Append query params
-    if (params) {
-        const qs = new URLSearchParams(
-            Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
-        ).toString();
-        if (qs) fullUrl += (fullUrl.includes('?') ? '&' : '?') + qs;
+    // Tambahkan query params dari options object (axios compat)
+    if (params && Object.keys(params).length > 0) {
+        const filtered = Object.fromEntries(
+            Object.entries(params).filter(([, v]) => v != null && v !== '')
+        );
+        if (Object.keys(filtered).length > 0) {
+            const qs = new URLSearchParams(filtered).toString();
+            url += (url.includes('?') ? '&' : '?') + qs;
+        }
     }
 
     const opts = {
         method,
         headers: {
-            'Accept':        'application/json',
-            'Content-Type':  'application/json',
-            'X-CSRF-TOKEN':  csrf(),
+            'Accept':       'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrf(),
         },
         credentials: 'same-origin',
     };
-    if (body) opts.body = JSON.stringify(body);
 
-    const res = await fetch(fullUrl, opts);
+    if (body && method !== 'GET') opts.body = JSON.stringify(body);
 
-    if (res.status === 401 || res.status === 403) {
+    const res = await fetch(url, opts);
+
+    if (res.status === 401) {
         window.location.href = '/login';
-        return;
+        return { data: null };
     }
 
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-        const err = new Error(data.message ?? 'Terjadi kesalahan.');
+        const err    = new Error(data.message ?? 'Terjadi kesalahan.');
         err.response = { data, status: res.status };
-        err.errors = data.errors ?? {};
+        err.errors   = data.errors ?? {};
         throw err;
     }
 
-    // Normalise to { data: ... } shape that perawat components expect
+    // Kembalikan dalam bentuk { data } agar kompatibel dengan kode perawat
     return { data };
 }
 
-// Support second argument as options object (for axios compat: api.get(url, { params }))
 const api = {
-    get:    (url, opts)       => request('GET',    url, null, opts?.params),
-    post:   (url, body)       => request('POST',   url, body),
-    put:    (url, body)       => request('PUT',    url, body),
-    patch:  (url, body)       => request('PATCH',  url, body),
-    delete: (url)             => request('DELETE', url),
+    get:    (url, opts)  => request('GET',    url, null,  opts?.params),
+    post:   (url, body)  => request('POST',   url, body),
+    put:    (url, body)  => request('PUT',    url, body),
+    patch:  (url, body)  => request('PATCH',  url, body),
+    delete: (url)        => request('DELETE', url),
 };
 
 export default api;
